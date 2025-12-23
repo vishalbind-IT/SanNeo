@@ -65,9 +65,9 @@ TESTIMONIALS = [
 def index():
     return render_template("index.html", PROJECTS=PROJECTS, CLIENTS=CLIENTS, TESTIMONIALS=TESTIMONIALS)
 
-SENDER_EMAIL = os.environ.get("farzigmng7@gmail.com")
-APP_PASSWORD = os.environ.get("jhpgvixeqknztfqg")
-RECEIVER_EMAIL = os.environ.get("farzigmng7@gmail.com")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL")
+APP_PASSWORD = os.environ.get("APP_PASSWORD")
+RECEIVER_EMAIL = os.environ.get("RECEIVER_EMAIL")
 
 
 @app.route('/contact', methods=['POST'])
@@ -80,8 +80,8 @@ def contact():
     # ---------- SEND EMAIL ----------
     msg = EmailMessage()
     msg['Subject'] = "New Portfolio Contact"
-    msg['From'] = "farzigmng7@gmail.com"
-    msg['To'] = "farzigmng7@gmail.com"
+    msg['From'] = "SENDER_EMAIL"
+    msg['To'] = "RECEIVER_EMAIL"
     msg.set_content(f"""
 New message received from your portfolio:
 
@@ -94,7 +94,7 @@ Message:
     #-------Error Handling--------
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login("farzigmng7@gmail.com", "jhpgvixeqknztfqg")
+            smtp.login("SENDER_EMAIL", "APP_PASSWORD")
             smtp.send_message(msg)
             return jsonify({"success": True})
     except Exception:
