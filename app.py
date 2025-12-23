@@ -93,7 +93,8 @@ Message:
     """)
     #-------Error Handling--------
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 587, timeout=10) as smtp:
+            smtp.starttls()
             smtp.login(SENDER_EMAIL, APP_PASSWORD)
             smtp.send_message(msg)
             return jsonify({"success": True})
