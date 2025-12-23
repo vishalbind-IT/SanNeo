@@ -80,8 +80,8 @@ def contact():
     # ---------- SEND EMAIL ----------
     msg = EmailMessage()
     msg['Subject'] = "New Portfolio Contact"
-    msg['From'] = "SENDER_EMAIL"
-    msg['To'] = "RECEIVER_EMAIL"
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = RECEIVER_EMAIL
     msg.set_content(f"""
 New message received from your portfolio:
 
@@ -94,7 +94,7 @@ Message:
     #-------Error Handling--------
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login("SENDER_EMAIL", "APP_PASSWORD")
+            smtp.login(SENDER_EMAIL, APP_PASSWORD)
             smtp.send_message(msg)
             return jsonify({"success": True})
     except Exception:
