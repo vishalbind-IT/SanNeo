@@ -1,7 +1,7 @@
 from flask import Flask, render_template_string, request, jsonify,render_template
 import smtplib
 from email.message import EmailMessage
-import os
+
 
 app = Flask(__name__)
 
@@ -60,14 +60,15 @@ TESTIMONIALS = [
     
 ]
 
+SENDER_EMAIL = "farzigmng7@gmail.com"
+APP_PASSWORD = "jhpgvixeqknztfqg"
+RECEIVER_EMAIL = "farzigmng7@gmail.com"
+
 #------Render_Templates--------
 @app.route('/')
 def index():
     return render_template("index.html", PROJECTS=PROJECTS, CLIENTS=CLIENTS, TESTIMONIALS=TESTIMONIALS)
 
-SENDER_EMAIL = os.environ.get("farzigmng7@gmail.com")
-APP_PASSWORD = os.environ.get("jhpgvixeqknztfqg")
-RECEIVER_EMAIL = os.environ.get("farzigmng7@gmail.com")
 
 
 @app.route('/contact', methods=['POST'])
@@ -79,11 +80,11 @@ def contact():
   
     # ---------- SEND EMAIL ----------
     msg = EmailMessage()
-    msg['Subject'] = "New Portfolio Contact"
+    msg['Subject'] = "📩 New Portfolio Contact"
     msg['From'] = SENDER_EMAIL
     msg['To'] = RECEIVER_EMAIL
     msg.set_content(f"""
-New message received from your portfolio:
+New message from your portfolio:
 
 Name: {name}
 Email: {email}
@@ -91,12 +92,12 @@ Email: {email}
 Message:
 {message}
     """)
+
     #-------Error Handling--------
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 587, timeout=10) as smtp:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
             smtp.login(SENDER_EMAIL, APP_PASSWORD)
             smtp.send_message(msg)
-            return jsonify({"success": True})
+        return jsonify({"success": True})
     except Exception:
         return jsonify({"success": False}), 500
-    
