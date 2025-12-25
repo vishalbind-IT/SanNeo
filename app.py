@@ -1,26 +1,11 @@
 from flask import Flask, render_template_string, request, jsonify
-import psycopg2
-import os
-from urllib.parse import urlparse
-from dotenv import load_dotenv
 
-load_dotenv() 
 
 
 app = Flask(__name__)
 
 
-# ------------------ DATABASE CONNECTION (PostgreSQL) ------------------
-url = urlparse(os.environ.get("DATABASE_URL"))
 
-db = psycopg2.connect(
-    dbname=url.path[1:],  # skip leading /
-    user=url.username,
-    password=url.password,
-    host=url.hostname,
-    port=url.port
-)
-cursor = db.cursor()
 
 # Mock Database for Projects with Mini Case Studies
 # IMPROVEMENT: Added 'live_url', 'github_url', and 'features' to support the new Live View requirements
@@ -1070,20 +1055,9 @@ def portfolio():
 
 @app.route('/contact', methods=['POST'])
 def contact():
-    try:
-        name = request.form.get('name')
-        email = request.form.get('email')
-        message = request.form.get('message')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    message = request.form.get('message')
+    print(f"New Contact: {name} ({email}) - {message}")
+    return jsonify({"success": True})
 
-        if not name or not email or not message:
-            return jsonify({"success": False, "error": "All fields are required"})
-
-        # ---------------- SAVE TO POSTGRES ----------------
-        sql = "INSERT INTO messages (name, email, message) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (name, email, message))
-        db.commit()
-
-        return jsonify({"success": True, "message": "Message saved successfully!"})
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
