@@ -1,30 +1,53 @@
 from flask import Flask, render_template_string, request, jsonify
-import smtplib
-from email.message import EmailMessage
+import psycopg2
+import os
+from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+load_dotenv() 
+
 
 app = Flask(__name__)
+
+
+# ------------------ DATABASE CONNECTION (PostgreSQL) ------------------
+url = urlparse(os.environ.get("DATABASE_URL"))
+
+db = psycopg2.connect(
+    dbname=url.path[1:],  # skip leading /
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
+cursor = db.cursor()
 
 # Mock Database for Projects with Mini Case Studies
 # IMPROVEMENT: Added 'live_url', 'github_url', and 'features' to support the new Live View requirements
 PROJECTS = [
     {
         "id": 1,
-        "title": "Quantum Dashboard",
+        "title": "SanNeo – Personal Portfolio Website",
         "category": "SAAS",
-        "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
-        "description": "A high-performance analytics platform for real-time data visualization.",
-        "tech": ["Python", "Flask", "D3.js"],
-        "challenge": "The client needed to process 1M+ data points per second without UI lag.",
-        "solution": "Implemented a WebSocket-based streaming architecture with a custom D3.js rendering engine.",
-        "result": "Reduced data latency by 45% and increased user retention by 30%.",
-        "live_url": "https://example.com", 
+        "image": "/static/images/portfolio_project.png",
+        "description": "A modern personal portfolio website designed to showcase projects, skills, and professional experience with a clean layout, smooth interactions, and responsive design.",
+        "tech": ["HTML", "CSS", "JavaScript", "Bootstrap"],
+        "challenge": "Creating a professional personal brand website that effectively highlights projects, skills, and contact information while maintaining fast performance, accessibility, and visual consistency.",
+        "solution": "Designed and developed a fully responsive portfolio website using HTML, CSS, Bootstrap, and JavaScript with structured sections, reusable components, and clean UI patterns.",
+        "result": "Successfully launched a polished portfolio website that serves as a professional online presence for freelancing and job opportunities, enabling clear project presentation and easy client contact.",
+        "live_url": "https://sanneo.onrender.com/", 
         "github_url": "#", 
-        "features": ["Real-time Data Streaming", "Custom D3.js Charts", "Role-based Access Control"] 
+        "features": ["Professional Hero Section",
+        "Projects & Work Showcase",
+       "Skills & Tech Stack Display",
+       "Contact Form UI",
+       "Responsive Layout (Mobile & Desktop)",
+       "Clean & Modern UI Design"] 
     },
     {
         "id": 2,
         "title": "AI Resume Job Matcher",
-        "category": "Web",
+        "category": "Mobile",
         "image": "/static/images/ai_resume_project.png",
         "description": "An intelligent platform that matches resumes with job descriptions using NLP and Generative AI for skill similarity scoring and recommendations.",
         "tech": ["Python", "FastAPI", "Generative AI","MySQL"],
@@ -36,18 +59,26 @@ PROJECTS = [
         "features": ["Wearable API Integration", "Offline Mode", "Biometric Encryption"] 
     },
     {
-        "id": 3,
+             "id": 3,
         "title": "Grocery E-Commerce Web Application",
         "category": "Web",
-        "image": "/static/images/grocery_project.png",
-        "description": "A complete online grocery platform that allows users to browse products, manage carts, place orders, and track purchases through a secure and responsive interface.",
-        "tech": ["Python",  "Flask",  "MySQL",  "HTML",  "CSS",  "JavaScript", "Bootstrap"],
-        "challenge": "Building a scalable and user-friendly grocery platform with secure authentication, real-time cart updates, and reliable order management while maintaining good performance and clean UI.",
-        "solution": "Developed a full-stack web application using Flask with structured backend logic, optimized MySQL queries, session-based authentication, and a responsive frontend built with Bootstrap and JavaScript.",
-        "result": "Successfully delivered a fully functional grocery web application with smooth user experience, secure backend operations, and responsive design suitable for real-world usage.",
-        "live_url": "https://example.com", 
+        "image": "/static/images/yumiorunner_project.png",
+        "description": "A modern, polished single-page application for food delivery, showcasing restaurant listings, popular dishes, categories, app promotion, and enhanced user interactions with a focus on clean UI and smooth UX.",
+        "tech": ["HTML", "CSS", "JavaScript", "Bootstrap", "Tailwind CSS"],
+        "challenge": "Designing a high-conversion, interactive food delivery SPA with persistent cart, favorites, modals for product details, authentication flows, and responsive design across all devices.",
+        "solution": "Built a fully responsive single-page application using HTML, CSS, Bootstrap, Tailwind, and JavaScript. Added structured sections, reusable components, smooth interactions, lazy-loading images, toast notifications, dark mode toggle, and localStorage data persistence.",
+        "result": "Delivered a professional, visually appealing, and interactive food delivery SPA with persistent state, enhanced UI/UX, quick product details, favorites system, and simulated order tracking, suitable for startups, demos, and client presentations.",
+        "live_url": "https://yumiorunner.onrender.com", 
         "github_url": "#", 
-        "features": ["Multi-currency Ledger", "Stripe Connect", "AI Fraud Detection"] 
+        "features": ["Enhanced Authentication: Sign In / Sign Up with validation and loading states",
+        "Persistent Cart & Favorites using localStorage",
+        "Quick View Product Details Modal with nutritional info",
+        "Dynamic Order Tracking Simulation",
+        "Responsive Navigation & Hero Section",
+        "Food Categories & Popular Items UI",
+        "Mobile & Tablet Responsive Design",
+        "Scroll to Top Button and Dark Mode Toggle",
+        "Loading spinners & improved toast notifications"] 
     }
 ]
 
@@ -1039,32 +1070,20 @@ def portfolio():
 
 @app.route('/contact', methods=['POST'])
 def contact():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    message = request.form.get('message')
-
-  
-  
- # ---------- SEND EMAIL ----------
-    msg = EmailMessage()
-    msg['Subject'] = "New Portfolio Contact"
-    msg['From'] = "farzigmng7@gmail.com"
-    msg['To'] = "farzigmng7@gmail.com"
-    msg.set_content(f"""
-New message received from your portfolio:
-
-Name: {name}
-Email: {email}
-
-Message:
-{message}
-    """)
-    #-------Error Handling--------
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login("farzigmng7@gmail.com", "jhpgvixeqknztfqg")
-            smtp.send_message(msg)
-            return jsonify({"success": True})
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+
+        if not name or not email or not message:
+            return jsonify({"success": False, "error": "All fields are required"})
+
+        # ---------------- SAVE TO POSTGRES ----------------
+        sql = "INSERT INTO messages (name, email, message) VALUES (%s, %s, %s)"
+        cursor.execute(sql, (name, email, message))
+        db.commit()
+
+        return jsonify({"success": True, "message": "Message saved successfully!"})
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-  
