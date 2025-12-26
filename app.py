@@ -45,7 +45,7 @@ PROJECTS = [
     },
     {
              "id": 3,
-        "title": "Grocery E-Commerce Web Application",
+        "title": "YumioRunner – Food Delivery Landing Page",
         "category": "Web",
         "image": "/static/images/yumiorunner_project.png",
         "description": "A modern, polished single-page application for food delivery, showcasing restaurant listings, popular dishes, categories, app promotion, and enhanced user interactions with a focus on clean UI and smooth UX.",
