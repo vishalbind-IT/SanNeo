@@ -12,7 +12,7 @@ app = Flask(__name__)
 PROJECTS = [
     {
         "id": 1,
-        "title": "SanNeo – Personal Portfolio Website",
+        "title": "Saniio – Personal Portfolio Website",
         "category": "SAAS",
         "image": "/static/images/portfolio_project.png",
         "description": "A modern personal portfolio website designed to showcase projects, skills, and professional experience with a clean layout, smooth interactions, and responsive design.",
@@ -92,7 +92,7 @@ SHARED_HEAD = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>SanNeo</title>
+    <title>Saniio</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -385,7 +385,7 @@ SHARED_NAV = """
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
         <div class="container">
-            <a class="navbar-brand text-main" href="/" style="color: var(--text-main) !important;"><h3 class="hero-title">SanNeo
+            <a class="navbar-brand text-main" href="/" style="color: var(--text-main) !important;"><h3 class="hero-title">Saniio
             </h3></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -880,7 +880,7 @@ SHARED_FOOTER_AND_SCRIPTS = """
     </div>
 
     <footer class="container py-5 text-center text-muted small border-top border-light mt-5">
-        <p>© 2025 SanNeo | Created by Vish</p>
+        <p>© 2025 Saniio | Created by Vish</p>
     </footer>
 
     <!-- Bootstrap JS -->
